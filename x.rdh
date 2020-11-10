@@ -17,12 +17,9 @@ for k_ (1,10,1) {
     show 'alibaba'
 }
 
-if (a_ < b_){
-    show a_
-}
-nextif (a_ < c_){
-    show c_
-}
-else{
-    show b_
+if (456 < b_) {
+    show 'First Worked'
+},
+else {
+    show 'NONONONOn'
 }}

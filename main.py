@@ -272,11 +272,75 @@ def for_loop(loopCommand, loopInfo, lineNum):
 
 # ----------------X-------------------X-------------- FOR LOOPS --------------------------X---------------X------------/
 
+# --------------------------------------------------- IF STATEMENTS ---------------------------------------------------/
+
+# For Loops
+# format;
+# for <variable name> (<start>, <end>, <by how much>) {
+#   <code>
+#   <code>
+#   <code>
+# }
+
+def if_statements(ifCommand, ifInfo, lineNum):
+    # process the if statements and get the relational data
+    relation_arguments = []
+    for ifLoop in ifCommand:
+        relation_arguments.append([])
+        if ifLoop[0] != "else":
+            for ifArgs in range(1, 4):
+                ifArg = ifLoop[ifArgs].replace("(", "").replace(")", "")
+                if ifArg in var_list:
+                    lenArg = len(relation_arguments)
+                    relation_arguments[lenArg-1].append(var_list[ifArg])
+                else:
+                    lenArg = len(relation_arguments)
+                    relation_arguments[lenArg-1].append(ifArg)
+        else:
+            lenArg = len(relation_arguments)
+            relation_arguments[lenArg - 1].append("else")
+
+    # Run the if statements after check if the given conditions are true or not
+    if relationResult(relation_arguments[0][0], relation_arguments[0][1], relation_arguments[0][2]):
+        for setLineNum in range(0, len(ifInfo[0])):
+            main_iteration(ifInfo[0], setLineNum)
+    else:
+        exitComm = False
+        for i in range(1, len(relation_arguments)):
+            if relation_arguments[i] != ["else"] and relationResult(relation_arguments[i][0], relation_arguments[i][1], relation_arguments[i][2]):
+                for setLineNum in range(0, len(ifInfo[i])):
+                    main_iteration(ifInfo[i], setLineNum)
+                exitComm = False
+                break
+            elif relation_arguments[i] == ["else"]:
+                exitComm = True
+        if exitComm == True:
+            for setLineNum in range(0, len(ifInfo[i])):
+                main_iteration(ifInfo[i], setLineNum)
+
+    # TODO add the error messages
+    return ""
+
+
+def relationResult(a,b,c):
+    if a == '56':
+        return True
+    else:
+        return False
+
+
+# ----------------X-------------------X-------------- IF STATEMENTS ----------------------X---------------X------------/
+
 # --------------------------------------------------- EXECUTING COMMANDS ----------------------------------------------/
 
 # required variables
 loopCommand = ''
 loopInfo = []
+ifCommand = []
+ifInfo = [[]]
+ifTemp = 0
+
+
 def main_iteration(commands_, command):
     # Execution of the for loop. I don't know that how the FUCK it works, I just know that I was messing with some code
     # and it started working, so please don't touch this part of the code
@@ -287,7 +351,7 @@ def main_iteration(commands_, command):
         loopInfo = []
     elif loopCommand != '' and commands_[command][0] != "}":
         loopInfo.append(commands_[command])
-    elif commands_[command][0] == "}":
+    elif loopCommand != '' and commands_[command][0] == "}":
         xFact = loopCommand
         loopCommand = ''
         message = for_loop(xFact, loopInfo, command + 1)
@@ -298,6 +362,30 @@ def main_iteration(commands_, command):
         command += 1
     elif commands_[command][0] == '}':
         pass
+
+    # Execution of if else stratments
+    # TODO ADD THE ERROR MESSAGES
+    elif commands_[command][0] == "if":
+        global ifCommand
+        global ifInfo
+        global ifTemp
+        ifCommand.append(commands_[command])
+        ifInfo = [[]]
+        ifTemp = 0
+    elif len(ifCommand) != 0 and commands_[command][0] != "}}":
+        if commands_[command - 1][0] == "},":
+            ifCommand.append(commands_[command])
+            ifInfo.append([])
+            ifTemp += 1
+        elif commands_[command][0] != "},":
+            ifInfo[ifTemp].append(commands_[command])
+    elif ifCommand != '' and commands_[command][0] == "}}":
+        ifCommand_ = ifCommand
+        ifCommand = []
+        if_statements(ifCommand_, ifInfo, command)
+        # Here the ifCommand_ contains the if and else statement and the ifInfo contains the code to put in statement
+        ifInfo = [[]]
+        ifTemp = 0
 
     # Execution of the show command
     elif commands_[command][0] == "show":
