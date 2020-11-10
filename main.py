@@ -274,13 +274,21 @@ def for_loop(loopCommand, loopInfo, lineNum):
 
 # --------------------------------------------------- IF STATEMENTS ---------------------------------------------------/
 
-# For Loops
+# IF STATEMENTS
 # format;
-# for <variable name> (<start>, <end>, <by how much>) {
-#   <code>
-#   <code>
-#   <code>
-# }
+# if (456 < b_) {
+#     show 'First Worked'
+# },
+# nextif (76 < c_) {
+#     show 'Second Worked'
+# },
+# nextif (56 < 78) {
+#     show 'Third Worked'
+#     show 'Yahoo'
+# },
+# else {
+#     show 'Fourth Worked'
+# }}
 
 def if_statements(ifCommand, ifInfo, lineNum):
     # process the if statements and get the relational data
