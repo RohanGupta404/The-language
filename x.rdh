@@ -1,0 +1,28 @@
+a_ = 56
+b_ = 10
+c_ = a_ + 4
+show c_
+show a_ * b_
+
+for aloo_ (2,4,1) {
+    show c_
+
+            show 'aloo'
+    show aloo_
+}
+
+show 'BOOBOBOBO'
+
+for k_ (1,10,1) {
+    show 'alibaba'
+}
+
+if (a_ < b_){
+    show a_
+}
+nextif (a_ < c_){
+    show c_
+}
+else{
+    show b_
+}}

@@ -1,0 +1,5 @@
+var1_ = 'show databases'
+
+~/ 'localhost' 'root' 'Alooboy123'
+
+~ var1_
