@@ -1,6 +1,8 @@
-func a_ {
-    show x_
+func a_3 {
+    show 3
 }
+
+a_
 
 ab_ = 23
 
@@ -8,9 +10,9 @@ show ab_ + 2 - 34
 
 
 for x_ (2,6,1) {
-    c_ = x_ % 2 + 3
+    c_ = x_ % 2
     if (c_ == 0) {
-        a_
+        show x_
     }}
 
 };

@@ -135,45 +135,48 @@ var_list = {}
 
 
 def defineVariable(command_, lineNum):
-    if command_[1] == "=":
-        var_list[command_[0]] = ""
-        operators = ['+', '-', '/', '*', '%']
-        string_to_return = ""
-        numString = []
-        for i in range(2, len(command_)):
-            # Check is variable already exists
-            if command_[i] in var_list:
-                if var_list[command_[i]].isdigit() or var_list[command_[i]] in operators:
+    if len(command_) > 1:
+        if command_[1] == "=":
+            var_list[command_[0]] = ""
+            operators = ['+', '-', '/', '*', '%']
+            string_to_return = ""
+            numString = []
+            for i in range(2, len(command_)):
+                # Check is variable already exists
+                if command_[i] in var_list:
+                    if var_list[command_[i]].isdigit() or var_list[command_[i]] in operators:
+                        if i + 1 >= len(command_):
+                            numString.append(str(var_list[command_[i]]))
+                            var_list[command_[0]] += digitResult(numString, lineNum)
+                        elif not command_[i + 1].replace("'", "").isalpha():
+                            numString.append(str(var_list[command_[i]]))
+                        else:
+                            numString.append(str(var_list[command_[i]]))
+                            var_list[command_[0]] += digitResult(numString, lineNum)
+                    else:
+                        var_list[command_[0]] += var_list[command_[i]].replace("'", "")
+
+                # Check is given value is a string
+                elif command_[i][0] == "'" and command_[i][len(command_[i]) - 1] == "'":
+                    var_list[command_[0]] += command_[i]
+
+                # Checks if the given value is numeric
+                elif command_[i].isdigit() or command_[i] in operators:
                     if i + 1 >= len(command_):
-                        numString.append(str(var_list[command_[i]]))
+                        numString.append(str(command_[i]))
                         var_list[command_[0]] += digitResult(numString, lineNum)
                     elif not command_[i + 1].replace("'", "").isalpha():
-                        numString.append(str(var_list[command_[i]]))
+                        numString.append(str(command_[i]))
                     else:
-                        numString.append(str(var_list[command_[i]]))
+                        numString.append(str(command_[i]))
                         var_list[command_[0]] += digitResult(numString, lineNum)
                 else:
-                    var_list[command_[0]] += var_list[command_[i]].replace("'", "")
-
-            # Check is given value is a string
-            elif command_[i][0] == "'" and command_[i][len(command_[i]) - 1] == "'":
-                var_list[command_[0]] += command_[i]
-
-            # Checks if the given value is numeric
-            elif command_[i].isdigit() or command_[i] in operators:
-                if i + 1 >= len(command_):
-                    numString.append(str(command_[i]))
-                    var_list[command_[0]] += digitResult(numString, lineNum)
-                elif not command_[i + 1].replace("'", "").isalpha():
-                    numString.append(str(command_[i]))
-                else:
-                    numString.append(str(command_[i]))
-                    var_list[command_[0]] += digitResult(numString, lineNum)
-            else:
-                return f"ERROR -x- {command_[2]} -x- NOT DEFINED ON LINE NUMBER:- " + lineNum
-        return ""
+                    return f"ERROR -x- {command_[2]} -x- NOT DEFINED ON LINE NUMBER:- " + lineNum
+            return ""
+        else:
+            return "ERROR MISSING ARRGUMENT (' = ') ON LINE NUMBER:- " + lineNum
     else:
-        return "ERROR MISSING ARRGUMENT (' = ') ON LINE NUMBER:- " + lineNum
+        return "ERROR function -x-" + command_[0] + "-x- not defined on line number:- " + lineNum
 
 
 # ----------------X-------------------X-------------- DEFINE VARIABLES -------------------X---------------X------------/
@@ -390,6 +393,11 @@ funcList = {}
 #   <code>
 # }
 def func_set(funcName, funcCommand, funcInfo, lineNum):
+    if len(funcCommand) != 3:
+        return "ERROR function not defined properly number:- " + str(lineNum)
+    elif funcCommand[2] != "{":
+        return "ERROR missing { on line number:- " + str(lineNum)
+
     global funcList
     funcList[funcName] = funcInfo
     return ""
