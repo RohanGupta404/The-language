@@ -203,7 +203,7 @@ def mysql_connection(command_, lineNum):
         return "ERROR INCORRECT DATA ON LINE NUMBER:- " + lineNum
 
 
-# Command the mysql server
+# Command for mysql code
 # format:
 # ~ '<mysql command>'
 
