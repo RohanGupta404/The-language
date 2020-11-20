@@ -4,8 +4,8 @@ import mysql.connector
 
 # ------------- MORE IDEAS ------------------/
 
-# TODO rather than printing the mysql output store them in variables
-# TODO add if else statements
+# TODO rather than Outputs the mysql output store them in variables
+# TODO add error messages for if else statements
 # TODO add a feature  that allows the user to pause the code for x amount of time
 
 # --------------------------------------------------- FILE TO LIST OF COMMANDS ----------------------------------------/
@@ -62,12 +62,12 @@ for i in range(0, len(commands)):
 # format:
 # show '<string>'
 def showCommand(command_, lineNum):
-    # prints the given string or variable
+    # Outputs the given string or variable
     operators = ['+', '-', '/', '*']
     string_to_return = ""
     numString = []
     for i in range(1, len(command_)):
-        # print the variable name
+        # Outputs the variable name
         if command_[i] in var_list:
             if var_list[command_[i]].isdigit() or var_list[command_[i]] in operators:
                 if i + 1 >= len(command_):
@@ -81,11 +81,11 @@ def showCommand(command_, lineNum):
             else:
                 string_to_return += var_list[command_[i]].replace("'", "")
 
-        # print a string
+        # Outputs a string
         elif command_[i][0] == "'" and command_[i][len(command_[i]) - 1] == "'":
             string_to_return += command_[i].replace("'", "")
 
-        # prints a numeric value or result of a numeric equation
+        # Outputs a numeric value or result of a numeric equation
         elif command_[i].isdigit() or command_[i] in operators:
             if i + 1 >= len(command_):
                 numString.append(str(command_[i]))
@@ -104,7 +104,7 @@ def showCommand(command_, lineNum):
 
 
 # Takes in mathematical expressions and converts them into on result
-# TODO ask Dhruv to add error messages
+# TODO DRUHV DO ERROR
 def digitResult(numbers, lineNum):
     x = len(numbers)
     if x == 1:
@@ -112,12 +112,12 @@ def digitResult(numbers, lineNum):
     elif x % 2 == 0:
         ans = f"ERROR INVALID EXPRESSION ON LINE NUMBER:- " + lineNum
     else:
-        expression_list = ['/', '*', '+', '-']
+        expression_list = ['/', '*', '+', '-', '%']
         for expression in expression_list:
             while expression in numbers:
                 a = numbers.index(expression)
                 val = eval('float(numbers[a - 1])' + expression.replace("\'", "") + 'float(numbers[a + 1])')
-                numbers[a - 1] = str(val)
+                numbers[a - 1] = str(int(val))
                 numbers.pop(a + 1)
                 numbers.pop(a)
         ans = numbers[0]
@@ -137,7 +137,7 @@ var_list = {}
 def defineVariable(command_, lineNum):
     if command_[1] == "=":
         var_list[command_[0]] = ""
-        operators = ['+', '-', '/', '*']
+        operators = ['+', '-', '/', '*', '%']
         string_to_return = ""
         numString = []
         for i in range(2, len(command_)):
@@ -225,7 +225,7 @@ def mysql_commands(command_, lineNum):
 
     mycursor.execute(mysql_command)
 
-    # Return/Print the output or a appropriate message
+    # Return/Outputs the output or a appropriate message
     if mysql_command[0:4].lower() == "show" or mysql_command[0:6].lower() == "select":
         returning_File = []
         for data in mycursor:
@@ -248,6 +248,7 @@ def mysql_commands(command_, lineNum):
 #   <code>
 # }
 
+# TODO DHRUV DO ERROR
 def for_loop(loopCommand, loopInfo, lineNum):
     if len(loopCommand) != 4 or loopCommand[3] != "{":
         return "ERROR: UNIDENTIFIED ERROR ON LINE NUMBER:- " + str(lineNum)
@@ -290,32 +291,52 @@ def for_loop(loopCommand, loopInfo, lineNum):
 #     show 'Fourth Worked'
 # }}
 
+# TODO DHRUV DO ERROR
 def if_statements(ifCommand, ifInfo, lineNum):
     # process the if statements and get the relational data
     relation_arguments = []
     for ifLoop in ifCommand:
         relation_arguments.append([])
         if ifLoop[0] != "else":
-            for ifArgs in range(1, 4):
+            for ifArgs in range(1, len(ifLoop) - 1):
                 ifArg = ifLoop[ifArgs].replace("(", "").replace(")", "")
                 if ifArg in var_list:
                     lenArg = len(relation_arguments)
-                    relation_arguments[lenArg-1].append(var_list[ifArg])
+                    relation_arguments[lenArg - 1].append(var_list[ifArg])
                 else:
                     lenArg = len(relation_arguments)
-                    relation_arguments[lenArg-1].append(ifArg)
+                    relation_arguments[lenArg - 1].append(ifArg)
         else:
             lenArg = len(relation_arguments)
             relation_arguments[lenArg - 1].append("else")
 
     # Run the if statements after check if the given conditions are true or not
-    if relationResult(relation_arguments[0][0], relation_arguments[0][1], relation_arguments[0][2]):
+    for j in range(len(relation_arguments)):
+        strRelation = ""
+        for i in relation_arguments[j]:
+            strRelation += i
+
+        for x in ['>', '<', '==', '>=', '<=', '!=']:
+            if x in strRelation:
+                relation_arguments[j] = strRelation.split(x)
+                relation_arguments[j].insert(1, x)
+
+    for i in range(len(relation_arguments)):
+        for val in ['+', '-', '/', '*', '%']:
+            for vals in range(len(relation_arguments[j])):
+                if val in relation_arguments[j][vals]:
+                    indi = relation_arguments[j][vals].index(val)
+                    relation_arguments[j][vals] = relation_arguments[j][vals].split(val)
+                    relation_arguments[j][vals].insert(indi, val)
+
+    if relationResult([relation_arguments[0][0], relation_arguments[0][1], relation_arguments[0][2]], lineNum):
         for setLineNum in range(0, len(ifInfo[0])):
             main_iteration(ifInfo[0], setLineNum)
     else:
         exitComm = False
         for i in range(1, len(relation_arguments)):
-            if relation_arguments[i] != ["else"] and relationResult(relation_arguments[i][0], relation_arguments[i][1], relation_arguments[i][2]):
+            if relation_arguments[i] != ["else"] and relationResult(
+                    [relation_arguments[i][0], relation_arguments[i][1], relation_arguments[i][2]], lineNum):
                 for setLineNum in range(0, len(ifInfo[i])):
                     main_iteration(ifInfo[i], setLineNum)
                 exitComm = False
@@ -329,15 +350,60 @@ def if_statements(ifCommand, ifInfo, lineNum):
     # TODO add the error messages
     return ""
 
+    # TODO add the error messages
+    return ""
 
-def relationResult(a,b,c):
-    if a == '56':
-        return True
-    else:
-        return False
+
+# Function to check if the arguments entered are true or false
+def relationResult(Expression, lineNum):
+    Operators = ['>', '<', '==', '>=', '<=', '!=']
+    for a in Operators:
+        if a in Expression:
+            Left_Exp = Expression[0]
+            Right_Exp = Expression[2]
+            Left_val = digitResult(Left_Exp, str(lineNum))
+            Right_val = digitResult(Right_Exp, str(lineNum))
+            if a == '>':
+                return Left_val > Right_val
+            elif a == '<':
+                return Left_val < Right_val
+            elif a == '<=':
+                return Left_val <= Right_val
+            elif a == '>=':
+                return Left_val >= Right_val
+            elif a == '==':
+                return Left_val == Right_val
+            elif a == '!=':
+                return Left_val != Right_val
 
 
 # ----------------X-------------------X-------------- IF STATEMENTS ----------------------X---------------X------------/
+
+# --------------------------------------------------- Function Set ----------------------------------------------------/
+funcList = {}
+
+
+# This functions is used to add more functions to the code
+# format:
+# func <function name> {
+#   <code>
+#   <code>
+# }
+def func_set(funcName, funcCommand, funcInfo, lineNum):
+    global funcList
+    funcList[funcName] = funcInfo
+    return ""
+
+
+# This functions executes the user defined functions
+# format:
+# <function name>
+def func_call(funcName):
+    for commands in range(0, len(funcList[funcName])):
+        main_iteration(funcList[funcName], commands)
+
+
+# ----------------X-------------------X-------------- Function Set -----------------------X---------------X------------/
 
 # --------------------------------------------------- EXECUTING COMMANDS ----------------------------------------------/
 
@@ -347,19 +413,22 @@ loopInfo = []
 ifCommand = []
 ifInfo = [[]]
 ifTemp = 0
+funcCommand = ''
+funcInfo = []
 
 
 def main_iteration(commands_, command):
     # Execution of the for loop. I don't know that how the FUCK it works, I just know that I was messing with some code
     # and it started working, so please don't touch this part of the code
+    # TODO DRHUV DO ERROR
     if commands_[command][0] == "for":
         global loopCommand
         loopCommand = commands_[command]
         global loopInfo
         loopInfo = []
-    elif loopCommand != '' and commands_[command][0] != "}":
+    elif loopCommand != '' and commands_[command][0] != "};":
         loopInfo.append(commands_[command])
-    elif loopCommand != '' and commands_[command][0] == "}":
+    elif loopCommand != '' and commands_[command][0] == "};":
         xFact = loopCommand
         loopCommand = ''
         message = for_loop(xFact, loopInfo, command + 1)
@@ -368,11 +437,11 @@ def main_iteration(commands_, command):
             print(message)
             return False
         command += 1
-    elif commands_[command][0] == '}':
+    elif commands_[command][0] == '};':
         pass
 
     # Execution of if else stratments
-    # TODO ADD THE ERROR MESSAGES
+    # TODO DHRUV DO ERROR
     elif commands_[command][0] == "if":
         global ifCommand
         global ifInfo
@@ -394,6 +463,29 @@ def main_iteration(commands_, command):
         # Here the ifCommand_ contains the if and else statement and the ifInfo contains the code to put in statement
         ifInfo = [[]]
         ifTemp = 0
+
+    # Execution of functions
+    elif commands_[command][0] == "func":
+        global funcCommand
+        funcCommand = commands_[command]
+        global funcInfo
+        funcInfo = []
+    elif funcCommand != '' and commands_[command][0] != "}":
+        funcInfo.append(commands_[command])
+    elif funcCommand != '' and commands_[command][0] == "}":
+        xFact = funcCommand
+        funcCommand = ''
+        message = func_set(xFact[1], xFact, funcInfo, command + 1)
+        funcInfo = []
+        if message[0:5] == "ERROR":
+            print(message)
+            return False
+        command += 1
+    elif commands_[command][0] == '}':
+        pass
+
+    elif commands_[command][0] in funcList.keys():
+        func_call(commands_[command][0])
 
     # Execution of the show command
     elif commands_[command][0] == "show":
@@ -436,7 +528,7 @@ def main_iteration(commands_, command):
                 return False
 
     else:
-        print(f"ERROR -x- {commands_[command][0]} -x- COMMAND NOT FOUND!!")
+        print(f"ERROR -x- {commands_[command][0]} -x- COMMAND NOT FOUND ON LINE NUMBER:- ", str(command + 1))
         return False
 
 

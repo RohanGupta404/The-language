@@ -1,32 +1,16 @@
-a_ = 56
-b_ = 10
-c_ = a_ + 4
-show c_
-show a_ * b_
-
-for aloo_ (2,4,1) {
-    show c_
-
-            show 'aloo'
-    show aloo_
+func a_ {
+    show x_
 }
 
-show 'BOOBOBOBO'
+ab_ = 23
 
-for k_ (1,10,1) {
-    show 'alibaba'
-}
+show ab_ + 2 - 34
 
-if (456 < b_) {
-    show 'First Worked'
-},
-nextif (76 < c_) {
-    show 'Secound Worked'
-},
-nextif (56 < 78) {
-    show 'Third Worked'
-    show 'Yahoo'
-},
-else {
-    show 'Fourth Worked'
-}}
+
+for x_ (2,6,1) {
+    c_ = x_ % 2 + 3
+    if (c_ == 0) {
+        a_
+    }}
+
+};
